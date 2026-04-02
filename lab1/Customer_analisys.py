@@ -20,6 +20,23 @@ def convert_to_numeric(df: DataFrame) -> DataFrame:
     return df
 
 
+def numeric_statistics(df: DataFrame) -> DataFrame:
+    numeric_columns = [TENURE, MONTHLY_CHARGES, TOTAL_CHARGES, SENIOR_CITIZEN]
+    numeric_data = df[numeric_columns]
+
+    statistics = pd.DataFrame(
+        {
+            "srednia": numeric_data.mean(),
+            "mediana": numeric_data.median(),
+            "min": numeric_data.min(),
+            "max": numeric_data.max(),
+            "odchylenie_standardowe": numeric_data.std(),
+        }
+    )
+
+    return statistics.round(2)
+
+
 def tenure_histogram(df: DataFrame) -> None:
     plt.figure(figsize=(8, 5))
     sns.histplot(data=df, x=TENURE, bins=20, color="skyblue", edgecolor="black")
@@ -84,7 +101,7 @@ def main() -> None:
     print()
 
     print("--- PODSTAWOWE STATYSTYKI ----")
-    print(data_frame.describe())
+    print(numeric_statistics(data_frame))
     print()
 
     tenure_histogram(data_frame)
