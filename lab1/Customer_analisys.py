@@ -24,15 +24,13 @@ def numeric_statistics(df: DataFrame) -> DataFrame:
     numeric_columns = [TENURE, MONTHLY_CHARGES, TOTAL_CHARGES, SENIOR_CITIZEN]
     numeric_data = df[numeric_columns]
 
-    statistics = pd.DataFrame(
-        {
-            "srednia": numeric_data.mean(),
-            "mediana": numeric_data.median(),
-            "min": numeric_data.min(),
-            "max": numeric_data.max(),
-            "odchylenie_standardowe": numeric_data.std(),
-        }
-    )
+    statistics = pd.DataFrame({
+        "srednia": numeric_data.mean(),
+        "mediana": numeric_data.median(),
+        "min": numeric_data.min(),
+        "max": numeric_data.max(),
+        "odchylenie_standardowe": numeric_data.std(),
+    })
 
     return statistics.round(2)
 
