@@ -1,6 +1,6 @@
 from pathlib import Path
 
-DATA_DIR = Path(__file__).resolve().parent / "resources"
+DATA_DIR = Path("resources")
 DATA_FILE = DATA_DIR / "WA_Fn-UseC_-Telco-Customer-Churn.csv"
 
 TENURE = "tenure"
