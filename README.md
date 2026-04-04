@@ -1,57 +1,73 @@
 # Metody systemowe i decyzyjne
 
-Repozytorium do realizacji projektu z analizy danych i prostych systemow decyzyjnych opartych na regulach `if/else`.
+Projekt do pierwszej części zajęć. Zawiera analizę danych, prosty system regułowy oraz wersję regresyjną.
 
-## Cel czesci I
+## Zakres projektu
 
-W tej czesci projektu przygotowujemy:
+W repozytorium są dwa główne przykłady:
 
-1. wczytanie danych,
-2. eksploracyjna analize danych (EDA),
-3. podzial na zbior treningowy i testowy,
-4. prosty klasyfikator oparty na regulach,
-5. rozbudowany system regulowy,
-6. opcjonalnie wersje regresyjna dla oceny 5.0.
+1. `Telco Customer Churn` - problem klasyfikacji.
+2. `Diamonds` - problem regresji.
 
-## Proponowany wybor zbiorow danych
+Oba zbiory mają cechy liczbowe i kategorialne, więc nadają się do EDA, kodowania danych i budowania prostych reguł decyzyjnych.
 
-- Klasyfikacja: `Heart Disease Dataset` albo `Telco Customer Churn`
-- Regresja: `Medical Cost Personal Datasets` albo `Diamonds`
+## Co jest w projekcie
 
-Ten podzial jest wygodny, bo zbiory zawieraja jednoczesnie cechy liczbowe i kategorialne.
+- wczytanie danych z plików CSV,
+- analiza numeryczna i kategorialna,
+- wykresy pokazujące najciekawsze zależności,
+- statystyki opisowe,
+- podział na zbiór treningowy i testowy,
+- proste systemy decyzyjne oparte na regułach `if/else`,
+- ocena jakości modeli na zbiorze testowym.
 
-## Struktura projektu
+## Struktura
 
-- `lab1/` - materialy do pierwszej czesci projektu
-- `lab1/resources/` - miejsce na pliki z danymi
-- `lab1/project_template.py` - prosty kod startowy
-- `src/app/main.py` - minimalny punkt startowy projektu
+- `lab1/zadania.ipynb` - główny notebook z analizą i modelami,
+- `lab1/Customer_analisys.py` - pomocniczy skrypt do analizy danych Telco,
+- `lab1/constants.py` - stałe z nazwami kolumn i ścieżkami do danych,
+- `lab1/resources/` - pliki CSV z danymi,
+- `src/app/main.py` - prosty punkt startowy aplikacji,
+- `pyproject.toml` - konfiguracja projektu i zależności dla `uv`.
 
-## Instalacja
+## Dane
 
-Jesli korzystasz z `uv`:
+W projekcie używam:
+
+- `WA_Fn-UseC_-Telco-Customer-Churn.csv` dla klasyfikacji,
+- `diamonds.csv` dla regresji.
+
+Pliki powinny znajdować się w `lab1/resources/`.
+
+## Jak uruchomić
+
+Najprościej przez `uv`:
 
 ```powershell
 uv sync
 ```
 
-Jesli chcesz uruchomic notebook:
-
 ```powershell
 uv run jupyter notebook
 ```
 
-## Co dalej
+Jeśli chcesz użyć zwykłego `pip`:
 
-Najrozsadniejsza kolejnosc prac:
+```powershell
+pip install -r requirements.txt
+```
 
-1. wybrac zbior danych do klasyfikacji,
-2. wgrac go do `lab1/resources/`,
-3. uzupelnic analize EDA,
-4. zbudowac 1 prosta regule,
-5. rozbudowac system do co najmniej 5 regul,
-6. na koncu przygotowac raport.
+Potem możesz uruchomić notebook lub skrypt Python bezpośrednio.
 
-## Uwaga
+## Wskazówki do notebooka
 
-Od momentu podzialu na zbior treningowy i testowy wszystkie decyzje analityczne powinny byc oparte tylko na zbiorze treningowym.
+- Najpierw wykonaj EDA.
+- Podział na `train/test` zrób przed dalszą analizą.
+- Po podziale nie korzystaj z danych testowych przy szukaniu reguł.
+- Wersja klasyfikacyjna opiera się na prostych warunkach `if/else`.
+- Wersja regresyjna zwraca wartość liczbową, a nie klasę `0/1`.
+
+## Wymagania
+
+Zależności do uruchomienia projektu są zapisane w `requirements.txt` i `pyproject.toml`.
+
