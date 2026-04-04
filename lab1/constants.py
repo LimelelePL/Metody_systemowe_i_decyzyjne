@@ -3,6 +3,8 @@ from pathlib import Path
 DATA_DIR = Path("resources")
 DATA_FILE = DATA_DIR / "WA_Fn-UseC_-Telco-Customer-Churn.csv"
 
+DIAMONDS_DATA_FILE = DATA_DIR / "diamonds.csv"
+
 # Kolumny numeryczne
 TENURE = "tenure"
 MONTHLY_CHARGES = "MonthlyCharges"
@@ -55,3 +57,17 @@ CHURN = "Churn"
 
 # identyfikator
 CUSTOMER_ID = "customerID"
+
+CARAT = "carat"
+CUT = "cut"
+COLOR = "color"
+CLARITY = "clarity"
+DEPTH = "depth"
+TABLE = "table"
+PRICE = "price"
+X = "x"
+Y = "y"
+Z = "z"
+
+D_NUMERIC = [CARAT, DEPTH, TABLE, PRICE, X, Y, Z]
+D_CATEGORIAL = [CUT, COLOR, CLARITY]
