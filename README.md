@@ -59,14 +59,6 @@ pip install -r requirements.txt
 
 Potem możesz uruchomić notebook lub skrypt Python bezpośrednio.
 
-## Wskazówki do notebooka
-
-- Najpierw wykonaj EDA.
-- Podział na `train/test` zrób przed dalszą analizą.
-- Po podziale nie korzystaj z danych testowych przy szukaniu reguł.
-- Wersja klasyfikacyjna opiera się na prostych warunkach `if/else`.
-- Wersja regresyjna zwraca wartość liczbową, a nie klasę `0/1`.
-
 ## Wymagania
 
 Zależności do uruchomienia projektu są zapisane w `requirements.txt` i `pyproject.toml`.
