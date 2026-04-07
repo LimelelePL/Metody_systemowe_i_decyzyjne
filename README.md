@@ -29,7 +29,8 @@ To zbiór opisujący diamenty i ich cenę (`price`).
 
 ## Struktura
 
-- `lab1/zadania.ipynb` - główny notebook z analizą i modelami,
+- `lab1/Raport_L1_Dominik_Dudek.ipynb` - główny notebook z analizą i modelami,
+- `lab1/Raport_L1_Dominik_Dudek.html` - wyeksportowany do czytelnego formatu główny notebook z analizą i modelami,
 - `lab1/constants.py` - stałe z nazwami kolumn i ścieżkami do danych,
 - `lab1/resources/` - pliki CSV z danymi,
 - `src/app/main.py` - prosty punkt startowy aplikacji,
