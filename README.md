@@ -35,7 +35,7 @@ To zbiór opisujący diamenty i ich cenę (`price`).
 - `src/app/main.py` - prosty punkt startowy aplikacji,
 - `pyproject.toml` - konfiguracja projektu i zależności dla `uv`.
 
-##Jak uruchomić?
+## Jak uruchomić?
 Najprosciej przez `uv`:
 
 ```powershell
