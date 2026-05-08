@@ -1,39 +1,16 @@
 from pathlib import Path
 
 import pandas as pd
+from constants import CHURN, D_NUMERIC, DATA_FILE, DIAMONDS_DATA_FILE, NUMERIC_COLUMNS
 from sklearn.model_selection import train_test_split
-
-try:
-    from constants import (
-        CHURN,
-        D_NUMERIC,
-        DATA_FILE,
-        DIAMONDS_DATA_FILE,
-        NUMERIC_COLUMNS,
-    )
-except ModuleNotFoundError:
-    from lab2.constants import (
-        CHURN,
-        D_NUMERIC,
-        DATA_FILE,
-        DIAMONDS_DATA_FILE,
-        NUMERIC_COLUMNS,
-    )
-
 
 TEST_SIZE = 0.2
 RANDOM_STATE = 42
+BASE_DIR = Path(__file__).resolve().parent
 
 
 def _resolve_data_path(path: Path) -> Path:
-    if path.exists():
-        return path
-
-    lab_dir_path = Path(__file__).resolve().parent / path
-    if lab_dir_path.exists():
-        return lab_dir_path
-
-    return path
+    return BASE_DIR / path
 
 
 def load_telco_data() -> pd.DataFrame:
