@@ -167,3 +167,32 @@ def plot_numeric_weight_comparison(numeric_plot_df):
     plt.ylabel("wartosc bezwzgledna wagi")
     plt.legend()
     plt.show()
+
+
+def plot_complexity_curves(complexity_df):
+    plt.figure(figsize=(10, 5))
+    plt.plot(complexity_df["degree"], complexity_df["train_mse"], marker="o", label="blad treningowy")
+    plt.plot(complexity_df["degree"], complexity_df["test_mse"], marker="o", label="blad testowy")
+    plt.title("Krzywe zlozonosci dla regresji wielomianowej")
+    plt.xlabel("stopien wielomianu")
+    plt.ylabel("MSE")
+    plt.legend()
+    plt.grid(alpha=0.3)
+    plt.show()
+
+
+def plot_polynomial_fit(train_x, train_y, grid_x, prediction_dict, title, training_limit=None):
+    plt.figure(figsize=(10, 5))
+    plt.scatter(train_x, train_y, s=12, alpha=0.25, color="black", label="dane treningowe")
+
+    for label, values in prediction_dict.items():
+        plt.plot(grid_x, values, linewidth=2, label=label)
+
+    if training_limit is not None:
+        plt.axvline(training_limit, color="gray", linestyle="--", label="koniec zakresu treningowego")
+
+    plt.title(title)
+    plt.xlabel("carat")
+    plt.ylabel("price")
+    plt.legend()
+    plt.show()
