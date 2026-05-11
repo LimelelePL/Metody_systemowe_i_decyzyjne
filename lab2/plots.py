@@ -92,12 +92,18 @@ def plot_regression_predictions(y_true, predictions_list):
     plt.show()
 
 
-def plot_loss_history(loss_history):
-    plt.figure(figsize=(8, 4))
-    plt.plot(loss_history, color="seagreen")
-    plt.title("Spadek MSE w czasie dla gradient descent")
+def plot_loss_history(loss_history_by_learning_rate):
+    plt.figure(figsize=(10, 5))
+
+    for learning_rate, history in loss_history_by_learning_rate.items():
+        plt.plot(history, linewidth=2, label=f"learning rate = {learning_rate}")
+
+    plt.title("Porownanie spadku MSE dla roznych learning rate")
     plt.xlabel("iteracja")
     plt.ylabel("MSE na treningu")
+    plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:,.0f}".replace(",", " ")))
+    plt.legend()
+    plt.grid(alpha=0.3)
     plt.show()
 
 
@@ -190,7 +196,7 @@ def plot_complexity_curves(complexity_df):
     axes[1].set_title("Krzywe zlozonosci - zoom dla malych stopni")
     axes[1].set_xlabel("stopien wielomianu")
     axes[1].set_ylabel("MSE")
-    axes[1].set_ylim(0, zoom_y_max)
+    axes[1].set_ylim(2000000, zoom_y_max)
     axes[1].yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:,.0f}".replace(",", " ")))
     axes[1].legend()
     axes[1].grid(alpha=0.3)
