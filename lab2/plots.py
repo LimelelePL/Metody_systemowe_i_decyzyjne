@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.tree import plot_tree
 
@@ -95,7 +96,7 @@ def plot_loss_history(loss_history):
     plt.figure(figsize=(8, 4))
     plt.plot(loss_history, color="seagreen")
     plt.title("Spadek MSE w czasie dla gradient descent")
-    plt.xlabel("epoka")
+    plt.xlabel("iteracja")
     plt.ylabel("MSE na treningu")
     plt.show()
 
@@ -170,14 +171,31 @@ def plot_numeric_weight_comparison(numeric_plot_df):
 
 
 def plot_complexity_curves(complexity_df):
-    plt.figure(figsize=(10, 5))
-    plt.plot(complexity_df["degree"], complexity_df["train_mse"], marker="o", label="blad treningowy")
-    plt.plot(complexity_df["degree"], complexity_df["test_mse"], marker="o", label="blad testowy")
-    plt.title("Krzywe zlozonosci dla regresji wielomianowej")
-    plt.xlabel("stopien wielomianu")
-    plt.ylabel("MSE")
-    plt.legend()
-    plt.grid(alpha=0.3)
+    fig, axes = plt.subplots(1, 2, figsize=(16, 5))
+
+    axes[0].plot(complexity_df["degree"], complexity_df["train_mse"], marker="o", label="blad treningowy")
+    axes[0].plot(complexity_df["degree"], complexity_df["test_mse"], marker="o", label="blad testowy")
+    axes[0].set_title("Krzywe zlozonosci - pelna skala")
+    axes[0].set_xlabel("stopien wielomianu")
+    axes[0].set_ylabel("MSE")
+    axes[0].yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:,.0f}".replace(",", " ")))
+    axes[0].legend()
+    axes[0].grid(alpha=0.3)
+
+    zoom_df = complexity_df[complexity_df["degree"] <= 12].copy()
+    zoom_y_max = max(zoom_df["train_mse"].max(), zoom_df["test_mse"].max()) * 1.03
+
+    axes[1].plot(zoom_df["degree"], zoom_df["train_mse"], marker="o", label="blad treningowy")
+    axes[1].plot(zoom_df["degree"], zoom_df["test_mse"], marker="o", label="blad testowy")
+    axes[1].set_title("Krzywe zlozonosci - zoom dla malych stopni")
+    axes[1].set_xlabel("stopien wielomianu")
+    axes[1].set_ylabel("MSE")
+    axes[1].set_ylim(0, zoom_y_max)
+    axes[1].yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:,.0f}".replace(",", " ")))
+    axes[1].legend()
+    axes[1].grid(alpha=0.3)
+
+    plt.tight_layout()
     plt.show()
 
 
@@ -195,4 +213,51 @@ def plot_polynomial_fit(train_x, train_y, grid_x, prediction_dict, title, traini
     plt.xlabel("carat")
     plt.ylabel("price")
     plt.legend()
+    plt.show()
+
+
+def plot_polynomial_fit_comparison(train_x, train_y, grid_x, left_prediction_dict, right_prediction_dict):
+    fig, axes = plt.subplots(1, 2, figsize=(16, 5))
+
+    plot_specs = [
+        (axes[0], left_prediction_dict, "Porownanie stopnia 1 i 8"),
+        (axes[1], right_prediction_dict, "Porownanie stopnia 1, 8 i 20"),
+    ]
+
+    for ax, prediction_dict, title in plot_specs:
+        ax.scatter(train_x, train_y, s=12, alpha=0.25, color="black", label="dane treningowe")
+        for label, values in prediction_dict.items():
+            ax.plot(grid_x, values, linewidth=2, label=label)
+        ax.set_title(title)
+        ax.set_xlabel("carat")
+        ax.set_ylabel("price")
+        ax.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:,.0f}".replace(",", " ")))
+        ax.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_black_swan_comparison(train_x, train_y, grid_x, prediction_dict, training_limit):
+    fig, axes = plt.subplots(1, 2, figsize=(16, 5))
+
+    for ax in axes:
+        ax.scatter(train_x, train_y, s=12, alpha=0.25, color="black", label="dane treningowe")
+        for label, values in prediction_dict.items():
+            ax.plot(grid_x, values, linewidth=2, label=label)
+        ax.axvline(training_limit, color="gray", linestyle="--", label="koniec zakresu treningowego")
+        ax.set_xlabel("carat")
+        ax.set_ylabel("price")
+        ax.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:,.0f}".replace(",", " ")))
+
+    axes[0].set_title("Czarny Labedz - pelna skala")
+
+    zoom_y_max = max(train_y.max(), prediction_dict["stopien 2 - model stabilny"].max()) * 1.15
+    axes[1].set_title("Czarny Labedz - zoom na sensowny zakres")
+    axes[1].set_ylim(0, zoom_y_max)
+
+    axes[0].legend()
+    axes[1].legend()
+
+    plt.tight_layout()
     plt.show()
