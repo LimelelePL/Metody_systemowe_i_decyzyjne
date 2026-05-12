@@ -178,9 +178,13 @@ def plot_numeric_weight_comparison(numeric_plot_df):
 
 def plot_complexity_curves(complexity_df):
     fig, axes = plt.subplots(1, 2, figsize=(16, 5))
+    sweet_spot_index = complexity_df["test_mse"].idxmin()
+    sweet_spot_degree = complexity_df.loc[sweet_spot_index, "degree"]
+    sweet_spot_value = complexity_df.loc[sweet_spot_index, "test_mse"]
 
     axes[0].plot(complexity_df["degree"], complexity_df["train_mse"], marker="o", label="blad treningowy")
     axes[0].plot(complexity_df["degree"], complexity_df["test_mse"], marker="o", label="blad testowy")
+    axes[0].scatter(sweet_spot_degree, sweet_spot_value, color="red", s=60, zorder=5, label="sweet spot")
     axes[0].set_title("Krzywe zlozonosci - pelna skala")
     axes[0].set_xlabel("stopien wielomianu")
     axes[0].set_ylabel("MSE")
@@ -193,6 +197,8 @@ def plot_complexity_curves(complexity_df):
 
     axes[1].plot(zoom_df["degree"], zoom_df["train_mse"], marker="o", label="blad treningowy")
     axes[1].plot(zoom_df["degree"], zoom_df["test_mse"], marker="o", label="blad testowy")
+    if sweet_spot_degree <= 12:
+        axes[1].scatter(sweet_spot_degree, sweet_spot_value, color="red", s=60, zorder=5, label="sweet spot")
     axes[1].set_title("Krzywe zlozonosci - zoom dla malych stopni")
     axes[1].set_xlabel("stopien wielomianu")
     axes[1].set_ylabel("MSE")
@@ -202,6 +208,23 @@ def plot_complexity_curves(complexity_df):
     axes[1].grid(alpha=0.3)
 
     plt.tight_layout()
+    plt.show()
+
+
+def plot_tree_complexity_curves(complexity_df):
+    sweet_spot_index = complexity_df["test_error"].idxmin()
+    sweet_spot_depth = complexity_df.loc[sweet_spot_index, "max_depth"]
+    sweet_spot_value = complexity_df.loc[sweet_spot_index, "test_error"]
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(complexity_df["max_depth"], complexity_df["train_error"], marker="o", label="blad treningowy")
+    plt.plot(complexity_df["max_depth"], complexity_df["test_error"], marker="o", label="blad testowy")
+    plt.scatter(sweet_spot_depth, sweet_spot_value, color="red", s=60, zorder=5, label="sweet spot")
+    plt.title("Krzywe zlozonosci dla drzewa decyzyjnego")
+    plt.xlabel("max_depth")
+    plt.ylabel("blad klasyfikacji")
+    plt.legend()
+    plt.grid(alpha=0.3)
     plt.show()
 
 
@@ -244,21 +267,21 @@ def plot_polynomial_fit_comparison(train_x, train_y, grid_x, left_prediction_dic
     plt.show()
 
 
-def plot_black_swan_comparison(train_x, train_y, grid_x, prediction_dict, training_limit):
+def plot_black_swan_comparison(train_x, train_y, grid_x, prediction_dict):
     fig, axes = plt.subplots(1, 2, figsize=(16, 5))
 
     for ax in axes:
         ax.scatter(train_x, train_y, s=12, alpha=0.25, color="black", label="dane treningowe")
         for label, values in prediction_dict.items():
             ax.plot(grid_x, values, linewidth=2, label=label)
-        ax.axvline(training_limit, color="gray", linestyle="--", label="koniec zakresu treningowego")
         ax.set_xlabel("carat")
         ax.set_ylabel("price")
         ax.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:,.0f}".replace(",", " ")))
 
     axes[0].set_title("Czarny Labedz - pelna skala")
 
-    zoom_y_max = max(train_y.max(), prediction_dict["stopien 2 - model stabilny"].max()) * 1.15
+    non_extreme_prediction_max = min(values.max() for values in prediction_dict.values())
+    zoom_y_max = max(train_y.max(), non_extreme_prediction_max) * 1.15
     axes[1].set_title("Czarny Labedz - zoom na sensowny zakres")
     axes[1].set_ylim(0, zoom_y_max)
 
