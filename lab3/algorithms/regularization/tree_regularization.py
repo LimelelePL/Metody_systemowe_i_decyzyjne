@@ -43,7 +43,7 @@ class TreeRegularizationComparison:
         self.parameter_values = {
             "min_samples_split": [2, 5, 10, 20, 40, 80, 120, 200, 400],
             "min_samples_leaf": [1, 2, 5, 10, 20, 40, 80, 120, 200],
-            "max_features": [None, "sqrt", "log2", 0.25, 0.5, 0.75],
+            "max_features": ["sqrt", "log2", 0.25, 0.5, 0.75],
         }
         self.defaults = {
             "min_samples_split": 2,

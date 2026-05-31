@@ -287,41 +287,16 @@ def plot_tree_regularization_by_parameter(results_df):
         positions = list(range(len(parameter_df)))
         sweet_spot_index = parameter_df["test_error"].idxmin()
 
-        if parameter == "max_features":
-            bar_width = 0.35
-            ax.bar(
-                [position - bar_width / 2 for position in positions],
-                parameter_df["train_error"],
-                width=bar_width,
-                color="steelblue",
-                label="train",
-            )
-            ax.bar(
-                [position + bar_width / 2 for position in positions],
-                parameter_df["test_error"],
-                width=bar_width,
-                color="coral",
-                label="test",
-            )
-            ax.scatter(
-                sweet_spot_index + bar_width / 2,
-                parameter_df.loc[sweet_spot_index, "test_error"],
-                color="red",
-                s=70,
-                zorder=5,
-                label="sweet spot",
-            )
-        else:
-            ax.plot(positions, parameter_df["train_error"], marker="o", label="train")
-            ax.plot(positions, parameter_df["test_error"], marker="o", label="test")
-            ax.scatter(
-                sweet_spot_index,
-                parameter_df.loc[sweet_spot_index, "test_error"],
-                color="red",
-                s=70,
-                zorder=5,
-                label="sweet spot",
-            )
+        ax.plot(positions, parameter_df["train_error"], marker="o", linewidth=2, label="train")
+        ax.plot(positions, parameter_df["test_error"], marker="o", linewidth=2, label="test")
+        ax.scatter(
+            sweet_spot_index,
+            parameter_df.loc[sweet_spot_index, "test_error"],
+            color="red",
+            s=70,
+            zorder=5,
+            label="sweet spot",
+        )
 
         ax.set_title(parameter)
         ax.set_xlabel(parameter)
@@ -370,6 +345,63 @@ def plot_classification_model_comparison(results):
     plt.ylabel("Wartosc metryki")
     plt.ylim(0, 1)
     plt.xticks(rotation=0)
-    ax.legend(title="Metryka", loc="upper left", bbox_to_anchor=(1.01, 1.0), borderaxespad=0.0)
-    plt.tight_layout(rect=(0, 0, 0.84, 1))
+    ax.legend(title="Metryka", loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=4, frameon=False)
+    plt.tight_layout(rect=(0, 0.08, 1, 1))
+    plt.show()
+
+
+# Zadanie 4.0 - podpunkt: Stacking
+
+
+def plot_stacking_model_comparison(metrics_df):
+    ax = metrics_df.set_index("Model")[["Accuracy", "Precision", "Recall", "F1-score"]].plot(
+        kind="bar",
+        figsize=(11, 5),
+    )
+    plt.title("Porownanie modeli poziomu 0, baggingu i stackingu")
+    plt.ylabel("Wartosc metryki")
+    plt.ylim(0, 1)
+    plt.xticks(rotation=0)
+    ax.legend(title="Metryka", loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=4, frameon=False)
+    plt.tight_layout(rect=(0, 0.08, 1, 1))
+    plt.show()
+
+
+def plot_stacking_level_0_diagnostics(diagnostics_df):
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+    axes[0].bar(diagnostics_df["Model"], diagnostics_df["Meta coefficient"], color=["#4c78a8", "#f58518", "#54a24b"])
+    axes[0].axhline(0, color="black", linewidth=1)
+    axes[0].set_title("Wspolczynniki meta-modelu")
+    axes[0].set_ylabel("wartosc wspolczynnika")
+    axes[0].tick_params(axis="x", rotation=15)
+    axes[0].grid(axis="y", alpha=0.3)
+
+    axes[1].bar(
+        diagnostics_df["Model"],
+        diagnostics_df["Corrected rate"],
+        color=["#4c78a8", "#f58518", "#54a24b"],
+    )
+    axes[1].set_title("Jak czesto stacking naprawia bledy modelu poziomu 0")
+    axes[1].set_ylabel("odsetek poprawionych bledow")
+    axes[1].set_ylim(0, 1)
+    axes[1].tick_params(axis="x", rotation=15)
+    axes[1].grid(axis="y", alpha=0.3)
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_stacking_vs_bagging(metrics_df):
+    ax = metrics_df.set_index("Model")[["Accuracy", "Precision", "Recall", "F1-score"]].plot(
+        kind="bar",
+        figsize=(9, 5),
+        color=["#4c78a8", "#f58518", "#54a24b", "#e45756"],
+    )
+    plt.title("Stacking vs bagging")
+    plt.ylabel("Wartosc metryki")
+    plt.ylim(0, 1)
+    plt.xticks(rotation=0)
+    ax.legend(title="Metryka", loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=4, frameon=False)
+    plt.tight_layout(rect=(0, 0.08, 1, 1))
     plt.show()

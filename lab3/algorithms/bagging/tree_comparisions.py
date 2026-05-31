@@ -13,8 +13,8 @@ except ModuleNotFoundError:
 
 
 class DecisionTreeTest:
-    def __init__(self, **params):
-        self.model = DecisionTreeClassifier(random_state=42, **params)
+    def __init__(self):
+        self.model = DecisionTreeClassifier(random_state=42)
 
     def fit(self, X_train, y_train):
         self.model.fit(X_train, y_train)
@@ -25,8 +25,8 @@ class DecisionTreeTest:
 
 
 class RandomForrestTest:
-    def __init__(self, **params):
-        self.model = RandomForestClassifier(random_state=42, **params)
+    def __init__(self):
+        self.model = RandomForestClassifier(random_state=42)
 
     def fit(self, X_train, y_train):
         self.model.fit(X_train, y_train)

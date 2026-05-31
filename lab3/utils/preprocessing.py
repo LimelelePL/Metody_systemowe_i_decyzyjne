@@ -1,13 +1,30 @@
 try:
-    from lab3.constants import CATEGORICAL_COLUMNS, CHURN, CUSTOMER_ID, NUMERIC_COLUMNS, PRICE
+    from lab3.constants import CATEGORICAL_COLUMNS, CHURN, CUSTOMER_ID, D_NUMERIC, NUMERIC_COLUMNS, PRICE
 except ModuleNotFoundError:
-    from constants import CATEGORICAL_COLUMNS, CHURN, CUSTOMER_ID, NUMERIC_COLUMNS, PRICE
+    from constants import CATEGORICAL_COLUMNS, CHURN, CUSTOMER_ID, D_NUMERIC, NUMERIC_COLUMNS, PRICE
 
 import pandas as pd
+from pandas import DataFrame
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
 
-def prepare_telco_data(train_df, test_df):
+def _scale_selected_columns(X_train, X_test, columns):
+    available_columns = [column for column in columns if column in X_train.columns]
+    if not available_columns:
+        return X_train, X_test
+
+    X_train = X_train.copy()
+    X_test = X_test.copy()
+    X_train[available_columns] = X_train[available_columns].astype(float)
+    X_test[available_columns] = X_test[available_columns].astype(float)
+
+    scaler = StandardScaler()
+    X_train.loc[:, available_columns] = scaler.fit_transform(X_train[available_columns])
+    X_test.loc[:, available_columns] = scaler.transform(X_test[available_columns])
+    return X_train, X_test
+
+
+def prepare_telco_data(train_df, test_df, scale_numeric=True):
     X_train = train_df.drop(columns=[CHURN, CUSTOMER_ID]).copy()
     y_train = train_df[CHURN].copy()
     X_test = test_df.drop(columns=[CHURN, CUSTOMER_ID]).copy()
@@ -23,14 +40,21 @@ def prepare_telco_data(train_df, test_df):
         X_train[column] = X_train[column].fillna(train_mode)
         X_test[column] = X_test[column].fillna(train_mode)
 
+    if scale_numeric:
+        X_train, X_test = _scale_selected_columns(X_train, X_test, NUMERIC_COLUMNS)
+
     return X_train, y_train, X_test, y_test
 
 
-def prepare_diamonds_data(train_df, test_df):
+def prepare_diamonds_data(train_df, test_df, scale_numeric=True):
     X_train = train_df.drop(columns=[PRICE]).copy()
     y_train = train_df[PRICE].copy()
     X_test = test_df.drop(columns=[PRICE]).copy()
     y_test = test_df[PRICE].copy()
+
+    if scale_numeric:
+        diamond_numeric_columns = [column for column in D_NUMERIC if column != PRICE]
+        X_train, X_test = _scale_selected_columns(X_train, X_test, diamond_numeric_columns)
 
     return X_train, y_train, X_test, y_test
 
@@ -95,3 +119,18 @@ def prepare_linear_regularization_data(
         "y_std": y_std,
         "feature_names": feature_names,
     }
+
+
+def prepare_stacking_data(X_train: DataFrame, X_test: DataFrame, scale_numeric=True):
+    X_train_prepared = X_train.copy()
+    X_test_prepared = X_test.copy()
+
+    if scale_numeric:
+        numeric_columns = [column for column in NUMERIC_COLUMNS if column in X_train_prepared.columns]
+        X_train_prepared, X_test_prepared = _scale_selected_columns(
+            X_train_prepared,
+            X_test_prepared,
+            numeric_columns,
+        )
+
+    return encode_train_test_features(X_train_prepared, X_test_prepared)
