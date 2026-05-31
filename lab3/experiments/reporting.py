@@ -1,20 +1,23 @@
 from IPython.display import display
 
-from lab3.plots.plots import (
-    plot_linear_regularization_curves,
-    plot_regression_baseline_vs_regularized,
-    plot_tree_baseline_vs_regularized,
-    plot_tree_regularization_by_parameter,
-    plot_weight_shrinkage,
-    plot_zero_weights_by_alpha,
-)
+try:
+    from lab3.algorithms.regularization.linear_regularization_comparison import LinearRegularizationComparison
+    from lab3.algorithms.regularization.regularization_sweet_spot import RegularizationSweetSpotComparison
+    from lab3.algorithms.regularization.tree_regularization import TreeRegularizationComparison
+    from lab3.plots.plots import plot_linear_regularization_all, plot_tree_regularization_all
+except ModuleNotFoundError:
+    from algorithms.regularization.linear_regularization_comparison import LinearRegularizationComparison
+    from algorithms.regularization.regularization_sweet_spot import RegularizationSweetSpotComparison
+    from algorithms.regularization.tree_regularization import TreeRegularizationComparison
+    from plots.plots import plot_linear_regularization_all, plot_tree_regularization_all
 
 
 def show_linear_regularization_report(experiment):
-    results_df = experiment["results"]
-    summary_df = experiment["summary"]
-    comparison_df = experiment["comparison"]
-    weights_df = experiment["weights"]
+    comparison = LinearRegularizationComparison()
+    results_df = comparison.build_results_df(experiment)
+    summary_df = comparison.build_summary_df(experiment)
+    comparison_df = comparison.build_comparison_df(experiment)
+    weights_df = comparison.build_weights_df(experiment)
 
     display(results_df.round(4))
     display(summary_df.round(4))
@@ -31,20 +34,22 @@ def show_linear_regularization_report(experiment):
         ].round(4)
     )
 
-    plot_linear_regularization_curves(results_df)
-    plot_zero_weights_by_alpha(results_df)
-    plot_weight_shrinkage(weights_df)
-    plot_regression_baseline_vs_regularized(comparison_df)
+    plot_linear_regularization_all(experiment)
 
 
 def show_tree_regularization_report(experiment):
-    results_df = experiment["results"]
-    summary_df = experiment["summary"]
-    comparison_df = experiment["comparison"]
+    comparison = TreeRegularizationComparison()
+    results_df = comparison.build_results_df(experiment)
+    summary_df = comparison.build_summary_df(experiment)
+    comparison_df = comparison.build_comparison_df(experiment)
 
     display(results_df.round(4))
     display(summary_df.round(4))
     display(comparison_df[["model", "train_error", "test_error"]].round(4))
 
-    plot_tree_regularization_by_parameter(results_df)
-    plot_tree_baseline_vs_regularized(comparison_df)
+    plot_tree_regularization_all(experiment)
+
+
+def show_sweet_spot_report(linear_experiment, tree_experiment):
+    summary_df = RegularizationSweetSpotComparison.build_comparison_df(linear_experiment, tree_experiment)
+    display(summary_df.round(4))

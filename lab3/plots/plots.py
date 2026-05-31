@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import pandas as pd
 from matplotlib.ticker import FuncFormatter
 
 
@@ -16,6 +17,9 @@ def _get_sweet_spot(results_df, parameter_column, test_column, lower_is_better=T
         results_df.loc[sweet_spot_index, parameter_column],
         results_df.loc[sweet_spot_index, test_column],
     )
+
+
+# Zadanie 3.0 - wspolne wykresy: model bazowy vs model zregularyzowany
 
 
 def plot_tree_regularization_curve(
@@ -175,6 +179,9 @@ def plot_regression_baseline_vs_regularized(comparison_df):
     )
 
 
+# Zadanie 3.0 - podpunkt: Regularyzacja L1/L2 dla regresji
+
+
 def plot_linear_regularization_curves(results_df):
     fig, axes = plt.subplots(1, 2, figsize=(14, 5), sharey=True)
 
@@ -261,6 +268,16 @@ def plot_weight_shrinkage(weights_df):
     plt.show()
 
 
+def plot_linear_regularization_all(experiment):
+    plot_linear_regularization_curves(experiment["results"])
+    plot_zero_weights_by_alpha(experiment["results"])
+    plot_weight_shrinkage(experiment["weights"])
+    plot_regression_baseline_vs_regularized(experiment["comparison"])
+
+
+# Zadanie 3.0 - podpunkt: Regularyzacja drzew decyzyjnych
+
+
 def plot_tree_regularization_by_parameter(results_df):
     parameters = ["min_samples_split", "min_samples_leaf", "max_features"]
     fig, axes = plt.subplots(1, 3, figsize=(18, 5))
@@ -270,16 +287,42 @@ def plot_tree_regularization_by_parameter(results_df):
         positions = list(range(len(parameter_df)))
         sweet_spot_index = parameter_df["test_error"].idxmin()
 
-        ax.plot(positions, parameter_df["train_error"], marker="o", label="train")
-        ax.plot(positions, parameter_df["test_error"], marker="o", label="test")
-        ax.scatter(
-            sweet_spot_index,
-            parameter_df.loc[sweet_spot_index, "test_error"],
-            color="red",
-            s=70,
-            zorder=5,
-            label="sweet spot",
-        )
+        if parameter == "max_features":
+            bar_width = 0.35
+            ax.bar(
+                [position - bar_width / 2 for position in positions],
+                parameter_df["train_error"],
+                width=bar_width,
+                color="steelblue",
+                label="train",
+            )
+            ax.bar(
+                [position + bar_width / 2 for position in positions],
+                parameter_df["test_error"],
+                width=bar_width,
+                color="coral",
+                label="test",
+            )
+            ax.scatter(
+                sweet_spot_index + bar_width / 2,
+                parameter_df.loc[sweet_spot_index, "test_error"],
+                color="red",
+                s=70,
+                zorder=5,
+                label="sweet spot",
+            )
+        else:
+            ax.plot(positions, parameter_df["train_error"], marker="o", label="train")
+            ax.plot(positions, parameter_df["test_error"], marker="o", label="test")
+            ax.scatter(
+                sweet_spot_index,
+                parameter_df.loc[sweet_spot_index, "test_error"],
+                color="red",
+                s=70,
+                zorder=5,
+                label="sweet spot",
+            )
+
         ax.set_title(parameter)
         ax.set_xlabel(parameter)
         ax.set_xticks(positions)
@@ -289,4 +332,44 @@ def plot_tree_regularization_by_parameter(results_df):
 
     axes[0].set_ylabel("blad klasyfikacji")
     plt.tight_layout()
+    plt.show()
+
+
+def plot_tree_regularization_all(experiment):
+    plot_tree_regularization_by_parameter(experiment["results"])
+    plot_tree_baseline_vs_regularized(experiment["comparison"])
+
+
+# Zadanie 3.5 - podpunkt: Decision Tree vs Random Forest, vs bagging
+
+
+def plot_classification_model_comparison(results):
+    if isinstance(results, pd.DataFrame):
+        comparison_df = results
+    else:
+        comparison_df = (
+            pd
+            .DataFrame(results)
+            .T.reset_index()
+            .rename(
+                columns={
+                    "index": "Model",
+                    "accuracy": "Accuracy",
+                    "precision": "Precision",
+                    "recall": "Recall",
+                    "f1": "F1-score",
+                }
+            )
+        )
+
+    ax = comparison_df.set_index("Model")[["Accuracy", "Precision", "Recall", "F1-score"]].plot(
+        kind="bar",
+        figsize=(10, 5),
+    )
+    plt.title("Porownanie modeli")
+    plt.ylabel("Wartosc metryki")
+    plt.ylim(0, 1)
+    plt.xticks(rotation=0)
+    ax.legend(title="Metryka", loc="upper left", bbox_to_anchor=(1.01, 1.0), borderaxespad=0.0)
+    plt.tight_layout(rect=(0, 0, 0.84, 1))
     plt.show()
