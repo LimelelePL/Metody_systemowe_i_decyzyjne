@@ -2,6 +2,7 @@ from IPython.display import display
 
 try:
     from lab3.boosting.boosting_comparisions import BoostingComparison
+    from lab3.algorithms.experts.mixture_of_experts_comparisions import MixtureOfExpertsComparison
     from lab3.algorithms.regularization.linear_regularization_comparison import LinearRegularizationComparison
     from lab3.algorithms.regularization.regularization_sweet_spot import RegularizationSweetSpotComparison
     from lab3.algorithms.regularization.tree_regularization import TreeRegularizationComparison
@@ -9,13 +10,15 @@ try:
     from lab3.plots.plots import (
         plot_boosting_all,
         plot_linear_regularization_all,
+        plot_mixture_of_experts_all,
         plot_stacking_level_0_diagnostics,
         plot_stacking_model_comparison,
         plot_stacking_vs_bagging,
         plot_tree_regularization_all,
     )
 except ModuleNotFoundError:
-    from boosting.boosting_comparisions import BoostingComparison
+    from algorithms.boosting.boosting_comparisions import BoostingComparison
+    from algorithms.experts.mixture_of_experts_comparisions import MixtureOfExpertsComparison
     from algorithms.regularization.linear_regularization_comparison import LinearRegularizationComparison
     from algorithms.regularization.regularization_sweet_spot import RegularizationSweetSpotComparison
     from algorithms.regularization.tree_regularization import TreeRegularizationComparison
@@ -23,6 +26,7 @@ except ModuleNotFoundError:
     from plots.plots import (
         plot_boosting_all,
         plot_linear_regularization_all,
+        plot_mixture_of_experts_all,
         plot_stacking_level_0_diagnostics,
         plot_stacking_model_comparison,
         plot_stacking_vs_bagging,
@@ -100,3 +104,16 @@ def show_boosting_report(experiment):
     display(comparison_df.round(4))
 
     plot_boosting_all(experiment)
+
+
+def show_mixture_of_experts_report(experiment):
+    comparison = MixtureOfExpertsComparison()
+    cluster_summary_df = comparison.build_cluster_summary_df(experiment)
+    global_comparison_df = comparison.build_global_comparison_df(experiment)
+    comparison_df = comparison.build_comparison_df(experiment)
+
+    display(cluster_summary_df.round(4))
+    display(global_comparison_df.round(4))
+    display(comparison_df.round(4))
+
+    plot_mixture_of_experts_all(experiment)

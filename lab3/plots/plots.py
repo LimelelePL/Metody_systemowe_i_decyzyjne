@@ -479,3 +479,68 @@ def plot_boosting_model_comparison(comparison_df):
 def plot_boosting_all(experiment):
     plot_boosting_n_estimators_curves(experiment["results"])
     plot_boosting_model_comparison(experiment["comparison"])
+
+
+# Zadanie 5.0 - podpunkt: Mixture of Experts dla diamonds
+
+
+def plot_mixture_of_experts_clusters(cluster_summary_df):
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+    axes[0].bar(cluster_summary_df["cluster"].astype(str), cluster_summary_df["count"], color="steelblue")
+    axes[0].set_title("Liczebnosc klastrow")
+    axes[0].set_xlabel("klaster")
+    axes[0].set_ylabel("liczba rekordow")
+    axes[0].grid(axis="y", alpha=0.3)
+
+    axes[1].bar(cluster_summary_df["cluster"].astype(str), cluster_summary_df["mean_price"], color="coral")
+    axes[1].set_title("Srednia cena w klastrach")
+    axes[1].set_xlabel("klaster")
+    axes[1].set_ylabel("srednia cena")
+    axes[1].yaxis.set_major_formatter(FuncFormatter(_format_number))
+    axes[1].grid(axis="y", alpha=0.3)
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_mixture_of_experts_model_comparison(comparison_df):
+    metrics = [
+        ("mae", "MAE"),
+        ("rmse", "RMSE"),
+        ("r2", "R^2"),
+    ]
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    positions = list(range(len(comparison_df)))
+    bar_width = 0.35
+
+    for ax, (metric_key, metric_label) in zip(axes, metrics):
+        ax.bar(
+            [position - bar_width / 2 for position in positions],
+            comparison_df[f"train_{metric_key}"],
+            width=bar_width,
+            label="train",
+            color="steelblue",
+        )
+        ax.bar(
+            [position + bar_width / 2 for position in positions],
+            comparison_df[f"test_{metric_key}"],
+            width=bar_width,
+            label="test",
+            color="coral",
+        )
+        ax.set_title(metric_label)
+        ax.set_xticks(positions)
+        ax.set_xticklabels(comparison_df["model"], rotation=10)
+        ax.grid(axis="y", alpha=0.3)
+        if metric_key in {"mae", "rmse"}:
+            ax.yaxis.set_major_formatter(FuncFormatter(_format_number))
+
+    axes[0].legend()
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_mixture_of_experts_all(experiment):
+    plot_mixture_of_experts_clusters(experiment["cluster_summary"])
+    plot_mixture_of_experts_model_comparison(experiment["comparison"])

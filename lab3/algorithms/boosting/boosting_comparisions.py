@@ -4,9 +4,9 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.tree import DecisionTreeRegressor
 
 try:
-    from lab3.boosting.boosting import MyGrandientBoosting
+    from lab3.algorithms.boosting.boosting import MyGrandientBoosting
 except ModuleNotFoundError:
-    from boosting.boosting import MyGrandientBoosting
+    from algorithms.boosting.boosting import MyGrandientBoosting
 
 
 class BoostingComparison:
@@ -59,7 +59,7 @@ class BoostingComparison:
 
         results_df = pd.DataFrame(boosting_rows)
         best_row = results_df.loc[results_df["test_rmse"].idxmin()].copy()
-        best_row["n_estimators"] = int(best_row["n_estimators"])
+        best_row["n_estimators"] = int(best_row["n_estimators"])  # type: ignore
 
         comparison_df = pd.DataFrame([
             {
@@ -72,7 +72,7 @@ class BoostingComparison:
                 "test_r2": baseline_test_metrics["r2"],
             },
             {
-                "model": f"MyGrandientBoosting n={int(best_row['n_estimators'])}",
+                "model": f"MyGrandientBoosting n={int(best_row['n_estimators'])}",  # type: ignore
                 "train_mae": best_row["train_mae"],
                 "test_mae": best_row["test_mae"],
                 "train_rmse": best_row["train_rmse"],

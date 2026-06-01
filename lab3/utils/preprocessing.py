@@ -134,3 +134,52 @@ def prepare_data(X_train: DataFrame, X_test: DataFrame, scale_numeric=True):
         )
 
     return encode_train_test_features(X_train_prepared, X_test_prepared)
+
+
+def fit_feature_preprocessor(X: DataFrame):
+    X_processed = X.copy()
+
+    numeric_columns = X_processed.select_dtypes(include=["number"]).columns
+    categorical_columns = X_processed.select_dtypes(exclude=["number"]).columns
+
+    numeric_fill_values = X_processed[numeric_columns].median()
+    categorical_fill_values = {column: X_processed[column].mode().iloc[0] for column in categorical_columns}
+
+    if len(numeric_columns) > 0:
+        X_processed.loc[:, numeric_columns] = X_processed[numeric_columns].fillna(numeric_fill_values)
+
+    for column in categorical_columns:
+        X_processed[column] = X_processed[column].fillna(categorical_fill_values[column])
+
+    X_processed = pd.get_dummies(X_processed)
+
+    artifacts = {
+        "numeric_fill_values": numeric_fill_values,
+        "categorical_fill_values": categorical_fill_values,
+        "feature_columns": X_processed.columns,
+    }
+
+    return X_processed, artifacts
+
+
+def transform_features(X: DataFrame, artifacts: dict):
+    X_processed = X.copy()
+
+    numeric_columns = X_processed.select_dtypes(include=["number"]).columns
+    categorical_columns = X_processed.select_dtypes(exclude=["number"]).columns
+
+    numeric_fill_values = artifacts["numeric_fill_values"]
+    categorical_fill_values = artifacts["categorical_fill_values"]
+    feature_columns = artifacts["feature_columns"]
+
+    if len(numeric_columns) > 0:
+        X_processed.loc[:, numeric_columns] = X_processed[numeric_columns].fillna(numeric_fill_values)
+
+    for column in categorical_columns:
+        if column in categorical_fill_values:
+            X_processed[column] = X_processed[column].fillna(categorical_fill_values[column])
+
+    X_processed = pd.get_dummies(X_processed)
+    X_processed = X_processed.reindex(columns=feature_columns, fill_value=0)
+
+    return X_processed
