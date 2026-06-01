@@ -1,11 +1,13 @@
 from IPython.display import display
 
 try:
+    from lab3.boosting.boosting_comparisions import BoostingComparison
     from lab3.algorithms.regularization.linear_regularization_comparison import LinearRegularizationComparison
     from lab3.algorithms.regularization.regularization_sweet_spot import RegularizationSweetSpotComparison
     from lab3.algorithms.regularization.tree_regularization import TreeRegularizationComparison
     from lab3.algorithms.stacking.stacking_comparisions import StackingComparison
     from lab3.plots.plots import (
+        plot_boosting_all,
         plot_linear_regularization_all,
         plot_stacking_level_0_diagnostics,
         plot_stacking_model_comparison,
@@ -13,14 +15,17 @@ try:
         plot_tree_regularization_all,
     )
 except ModuleNotFoundError:
+    from boosting.boosting_comparisions import BoostingComparison
     from algorithms.regularization.linear_regularization_comparison import LinearRegularizationComparison
     from algorithms.regularization.regularization_sweet_spot import RegularizationSweetSpotComparison
     from algorithms.regularization.tree_regularization import TreeRegularizationComparison
     from algorithms.stacking.stacking_comparisions import StackingComparison
     from plots.plots import (
+        plot_boosting_all,
         plot_linear_regularization_all,
         plot_stacking_level_0_diagnostics,
         plot_stacking_model_comparison,
+        plot_stacking_vs_bagging,
         plot_tree_regularization_all,
     )
 
@@ -82,3 +87,16 @@ def show_stacking_report(experiment):
     display(diagnostics_df.round(4))
     plot_stacking_level_0_diagnostics(diagnostics_df)
     # plot_stacking_vs_bagging(stacking_vs_bagging_df)
+
+
+def show_boosting_report(experiment):
+    comparison = BoostingComparison()
+    results_df = comparison.build_results_df(experiment)
+    summary_df = comparison.build_summary_df(experiment)
+    comparison_df = comparison.build_comparison_df(experiment)
+
+    display(results_df.round(4))
+    display(summary_df.round(4))
+    display(comparison_df.round(4))
+
+    plot_boosting_all(experiment)

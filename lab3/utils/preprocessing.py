@@ -121,7 +121,7 @@ def prepare_linear_regularization_data(
     }
 
 
-def prepare_stacking_data(X_train: DataFrame, X_test: DataFrame, scale_numeric=True):
+def prepare_data(X_train: DataFrame, X_test: DataFrame, scale_numeric=True):
     X_train_prepared = X_train.copy()
     X_test_prepared = X_test.copy()
 

@@ -405,3 +405,77 @@ def plot_stacking_vs_bagging(metrics_df):
     ax.legend(title="Metryka", loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=4, frameon=False)
     plt.tight_layout(rect=(0, 0.08, 1, 1))
     plt.show()
+
+
+# Zadanie 4.5 - podpunkt: Uproszczony boosting dla diamonds
+
+
+def plot_boosting_n_estimators_curves(results_df):
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+    rmse_n, rmse_value = _get_sweet_spot(results_df, "n_estimators", "test_rmse", lower_is_better=True)
+    r2_n, r2_value = _get_sweet_spot(results_df, "n_estimators", "test_r2", lower_is_better=False)
+
+    axes[0].plot(results_df["n_estimators"], results_df["train_rmse"], marker="o", linewidth=2, label="train")
+    axes[0].plot(results_df["n_estimators"], results_df["test_rmse"], marker="o", linewidth=2, label="test")
+    axes[0].scatter(rmse_n, rmse_value, color="red", s=70, zorder=5, label=f"best n={int(rmse_n)}")
+    axes[0].set_title("Boosting - wplyw n_estimators na RMSE")
+    axes[0].set_xlabel("n_estimators")
+    axes[0].set_ylabel("RMSE")
+    axes[0].yaxis.set_major_formatter(FuncFormatter(_format_number))
+    axes[0].grid(alpha=0.3)
+    axes[0].legend()
+
+    axes[1].plot(results_df["n_estimators"], results_df["train_r2"], marker="o", linewidth=2, label="train")
+    axes[1].plot(results_df["n_estimators"], results_df["test_r2"], marker="o", linewidth=2, label="test")
+    axes[1].scatter(r2_n, r2_value, color="red", s=70, zorder=5, label=f"best n={int(r2_n)}")
+    axes[1].set_title("Boosting - wplyw n_estimators na R^2")
+    axes[1].set_xlabel("n_estimators")
+    axes[1].set_ylabel("R^2")
+    axes[1].grid(alpha=0.3)
+    axes[1].legend()
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_boosting_model_comparison(comparison_df):
+    metrics = [
+        ("mae", "MAE"),
+        ("rmse", "RMSE"),
+        ("r2", "R^2"),
+    ]
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    positions = list(range(len(comparison_df)))
+    bar_width = 0.35
+
+    for ax, (metric_key, metric_label) in zip(axes, metrics):
+        ax.bar(
+            [position - bar_width / 2 for position in positions],
+            comparison_df[f"train_{metric_key}"],
+            width=bar_width,
+            label="train",
+            color="steelblue",
+        )
+        ax.bar(
+            [position + bar_width / 2 for position in positions],
+            comparison_df[f"test_{metric_key}"],
+            width=bar_width,
+            label="test",
+            color="coral",
+        )
+        ax.set_title(metric_label)
+        ax.set_xticks(positions)
+        ax.set_xticklabels(comparison_df["model"], rotation=10)
+        ax.grid(axis="y", alpha=0.3)
+        if metric_key in {"mae", "rmse"}:
+            ax.yaxis.set_major_formatter(FuncFormatter(_format_number))
+
+    axes[0].legend()
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_boosting_all(experiment):
+    plot_boosting_n_estimators_curves(experiment["results"])
+    plot_boosting_model_comparison(experiment["comparison"])
