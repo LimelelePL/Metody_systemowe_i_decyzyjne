@@ -354,16 +354,40 @@ def plot_classification_model_comparison(results):
 
 
 def plot_stacking_model_comparison(metrics_df):
-    ax = metrics_df.set_index("Model")[["Accuracy", "Precision", "Recall", "F1-score"]].plot(
-        kind="bar",
-        figsize=(11, 5),
-    )
-    plt.title("Porownanie modeli poziomu 0, baggingu i stackingu")
-    plt.ylabel("Wartosc metryki")
-    plt.ylim(0, 1)
-    plt.xticks(rotation=0)
-    ax.legend(title="Metryka", loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=4, frameon=False)
-    plt.tight_layout(rect=(0, 0.08, 1, 1))
+    metrics = [
+        ("MAE", "Train MAE", "Test MAE"),
+        ("RMSE", "Train RMSE", "Test RMSE"),
+        ("R²", "Train R2", "Test R2"),
+    ]
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    positions = list(range(len(metrics_df)))
+    bar_width = 0.35
+
+    for ax, (metric_label, train_column, test_column) in zip(axes, metrics):
+        ax.bar(
+            [position - bar_width / 2 for position in positions],
+            metrics_df[train_column],
+            width=bar_width,
+            label="train",
+            color="steelblue",
+        )
+        ax.bar(
+            [position + bar_width / 2 for position in positions],
+            metrics_df[test_column],
+            width=bar_width,
+            label="test",
+            color="coral",
+        )
+        ax.set_title(metric_label)
+        ax.set_xticks(positions)
+        ax.set_xticklabels(metrics_df["Model"], rotation=10)
+        ax.grid(axis="y", alpha=0.3)
+        if metric_label in {"MAE", "RMSE"}:
+            ax.yaxis.set_major_formatter(FuncFormatter(_format_number))
+
+    axes[0].legend()
+    fig.suptitle("Porownanie modeli poziomu 0, stackingu i boostingu", y=1.02)
+    plt.tight_layout()
     plt.show()
 
 
@@ -377,14 +401,10 @@ def plot_stacking_level_0_diagnostics(diagnostics_df):
     axes[0].tick_params(axis="x", rotation=15)
     axes[0].grid(axis="y", alpha=0.3)
 
-    axes[1].bar(
-        diagnostics_df["Model"],
-        diagnostics_df["Corrected rate"],
-        color=["#4c78a8", "#f58518", "#54a24b"],
-    )
-    axes[1].set_title("Jak czesto stacking naprawia bledy modelu poziomu 0")
-    axes[1].set_ylabel("odsetek poprawionych bledow")
-    axes[1].set_ylim(0, 1)
+    axes[1].bar(diagnostics_df["Model"], diagnostics_df["Test RMSE"], color=["#4c78a8", "#f58518", "#54a24b"])
+    axes[1].set_title("RMSE modeli poziomu 0")
+    axes[1].set_ylabel("Test RMSE")
+    axes[1].yaxis.set_major_formatter(FuncFormatter(_format_number))
     axes[1].tick_params(axis="x", rotation=15)
     axes[1].grid(axis="y", alpha=0.3)
 
@@ -392,18 +412,41 @@ def plot_stacking_level_0_diagnostics(diagnostics_df):
     plt.show()
 
 
-def plot_stacking_vs_bagging(metrics_df):
-    ax = metrics_df.set_index("Model")[["Accuracy", "Precision", "Recall", "F1-score"]].plot(
-        kind="bar",
-        figsize=(9, 5),
-        color=["#4c78a8", "#f58518", "#54a24b", "#e45756"],
-    )
-    plt.title("Stacking vs bagging")
-    plt.ylabel("Wartosc metryki")
-    plt.ylim(0, 1)
-    plt.xticks(rotation=0)
-    ax.legend(title="Metryka", loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=4, frameon=False)
-    plt.tight_layout(rect=(0, 0.08, 1, 1))
+def plot_stacking_vs_boosting(metrics_df):
+    metrics = [
+        ("MAE", "Train MAE", "Test MAE"),
+        ("RMSE", "Train RMSE", "Test RMSE"),
+        ("R²", "Train R2", "Test R2"),
+    ]
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    positions = list(range(len(metrics_df)))
+    bar_width = 0.35
+
+    for ax, (metric_label, train_column, test_column) in zip(axes, metrics):
+        ax.bar(
+            [position - bar_width / 2 for position in positions],
+            metrics_df[train_column],
+            width=bar_width,
+            label="train",
+            color="steelblue",
+        )
+        ax.bar(
+            [position + bar_width / 2 for position in positions],
+            metrics_df[test_column],
+            width=bar_width,
+            label="test",
+            color="coral",
+        )
+        ax.set_title(metric_label)
+        ax.set_xticks(positions)
+        ax.set_xticklabels(metrics_df["Model"], rotation=10)
+        ax.grid(axis="y", alpha=0.3)
+        if metric_label in {"MAE", "RMSE"}:
+            ax.yaxis.set_major_formatter(FuncFormatter(_format_number))
+
+    axes[0].legend()
+    fig.suptitle("Stacking vs boosting", y=1.02)
+    plt.tight_layout()
     plt.show()
 
 
@@ -544,3 +587,60 @@ def plot_mixture_of_experts_model_comparison(comparison_df):
 def plot_mixture_of_experts_all(experiment):
     plot_mixture_of_experts_clusters(experiment["cluster_summary"])
     plot_mixture_of_experts_model_comparison(experiment["comparison"])
+
+
+# Podsumowanie koncowe
+
+
+def plot_final_classification_summary(comparison_df):
+    ax = comparison_df.set_index("Model")[["Accuracy", "Precision", "Recall", "F1-score"]].plot(
+        kind="bar",
+        figsize=(10, 5),
+        width=0.8,
+    )
+    plt.title("Podsumowanie modeli klasyfikacyjnych na zbiorze Telco")
+    plt.ylabel("wartosc metryki")
+    plt.ylim(0, 1)
+    plt.xticks(rotation=0)
+    ax.legend(title="Metryka", loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=4, frameon=False)
+    plt.tight_layout(rect=(0, 0.08, 1, 1))
+    plt.show()
+
+
+def plot_final_regression_ensemble_summary(comparison_df):
+    metrics = [
+        ("Test MAE", "MAE", True),
+        ("Test RMSE", "RMSE", True),
+        ("Test R2", "R²", False),
+    ]
+    colors = ["#1f77b4", "#d62728", "#2ca02c"]
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+
+    for ax, (column, label, lower_is_better) in zip(axes, metrics):
+        values = comparison_df[column].astype(float)
+        bars = ax.bar(comparison_df["Model"], values, color=colors)
+        best_index = values.idxmin() if lower_is_better else values.idxmax()
+        bars[best_index].set_edgecolor("black")
+        bars[best_index].set_linewidth(2)
+
+        for bar, value in zip(bars, values):
+            text = f"{value:.2f}" if column != "Test R2" else f"{value:.4f}"
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height(),
+                text,
+                ha="center",
+                va="bottom",
+                fontsize=10,
+            )
+
+        ax.set_title(label)
+        ax.set_xticks(range(len(comparison_df)))
+        ax.set_xticklabels(comparison_df["Model"], rotation=10)
+        ax.grid(axis="y", alpha=0.3)
+        if column != "Test R2":
+            ax.yaxis.set_major_formatter(FuncFormatter(_format_number))
+
+    fig.suptitle("Podsumowanie modeli regresyjnych: Stacking vs Boosting vs Experts", y=1.02)
+    plt.tight_layout()
+    plt.show()

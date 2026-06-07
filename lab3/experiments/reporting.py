@@ -1,7 +1,8 @@
 from IPython.display import display
+import pandas as pd
 
 try:
-    from lab3.boosting.boosting_comparisions import BoostingComparison
+    from lab3.algorithms.boosting.boosting_comparisions import BoostingComparison
     from lab3.algorithms.experts.mixture_of_experts_comparisions import MixtureOfExpertsComparison
     from lab3.algorithms.regularization.linear_regularization_comparison import LinearRegularizationComparison
     from lab3.algorithms.regularization.regularization_sweet_spot import RegularizationSweetSpotComparison
@@ -9,11 +10,13 @@ try:
     from lab3.algorithms.stacking.stacking_comparisions import StackingComparison
     from lab3.plots.plots import (
         plot_boosting_all,
+        plot_final_classification_summary,
+        plot_final_regression_ensemble_summary,
         plot_linear_regularization_all,
         plot_mixture_of_experts_all,
         plot_stacking_level_0_diagnostics,
         plot_stacking_model_comparison,
-        plot_stacking_vs_bagging,
+        plot_stacking_vs_boosting,
         plot_tree_regularization_all,
     )
 except ModuleNotFoundError:
@@ -25,11 +28,13 @@ except ModuleNotFoundError:
     from algorithms.stacking.stacking_comparisions import StackingComparison
     from plots.plots import (
         plot_boosting_all,
+        plot_final_classification_summary,
+        plot_final_regression_ensemble_summary,
         plot_linear_regularization_all,
         plot_mixture_of_experts_all,
         plot_stacking_level_0_diagnostics,
         plot_stacking_model_comparison,
-        plot_stacking_vs_bagging,
+        plot_stacking_vs_boosting,
         plot_tree_regularization_all,
     )
 
@@ -81,16 +86,16 @@ def show_stacking_report(experiment):
     comparison = StackingComparison()
     metrics_df = comparison.build_metrics_df(experiment)
     diagnostics_df = comparison.build_level_0_diagnostics_df(experiment)
-    # stacking_vs_bagging_df = comparison.build_stacking_vs_bagging_df(experiment)
+    stacking_vs_boosting_df = comparison.build_stacking_vs_boosting_df(experiment)
 
     display(metrics_df.round(4))
-    # display(stacking_vs_bagging_df.round(4))
+    display(stacking_vs_boosting_df.round(4))
 
     plot_stacking_model_comparison(metrics_df)
+    plot_stacking_vs_boosting(stacking_vs_boosting_df)
 
     display(diagnostics_df.round(4))
     plot_stacking_level_0_diagnostics(diagnostics_df)
-    # plot_stacking_vs_bagging(stacking_vs_bagging_df)
 
 
 def show_boosting_report(experiment):
@@ -117,3 +122,41 @@ def show_mixture_of_experts_report(experiment):
     display(comparison_df.round(4))
 
     plot_mixture_of_experts_all(experiment)
+
+
+def show_final_summary_report(classification_df, stacking_experiment, mixture_of_experts_experiment):
+    stacking_comparison = StackingComparison()
+    mixture_comparison = MixtureOfExpertsComparison()
+
+    stacking_vs_boosting_df = stacking_comparison.build_stacking_vs_boosting_df(stacking_experiment).copy()
+    stacking_vs_boosting_df = stacking_vs_boosting_df.rename(
+        columns={
+            "Test MAE": "Test MAE",
+            "Test RMSE": "Test RMSE",
+            "Test R2": "Test R2",
+        }
+    )
+
+    mixture_df = mixture_comparison.build_comparison_df(mixture_of_experts_experiment).copy()
+    mixture_df = mixture_df[mixture_df["model"] == "Mixture of Experts"].rename(
+        columns={
+            "model": "Model",
+            "test_mae": "Test MAE",
+            "test_rmse": "Test RMSE",
+            "test_r2": "Test R2",
+        }
+    )
+
+    regression_summary_df = pd.concat(
+        [
+            stacking_vs_boosting_df[["Model", "Test MAE", "Test RMSE", "Test R2"]],
+            mixture_df[["Model", "Test MAE", "Test RMSE", "Test R2"]],
+        ],
+        ignore_index=True,
+    )
+
+    display(classification_df.round(4))
+    plot_final_classification_summary(classification_df)
+
+    display(regression_summary_df.round(4))
+    plot_final_regression_ensemble_summary(regression_summary_df)

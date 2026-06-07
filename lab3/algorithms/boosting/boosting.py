@@ -17,8 +17,7 @@ class MyGrandientBoosting:
         self.max_depth = max_depth
         self.preprocessing_artifacts = None
 
-    def fit(self, X_train, y_train):
-        X_train_processed, self.preprocessing_artifacts = fit_feature_preprocessor(X_train)
+    def fit_prepared(self, X_train_processed, y_train):
         y_train_processed = np.asarray(y_train, dtype=float)
 
         self.initial_prediction = float(np.mean(y_train_processed))
@@ -36,16 +35,25 @@ class MyGrandientBoosting:
 
         return self
 
-    def predict(self, X_test):
+    def fit(self, X_train, y_train):
+        X_train_processed, self.preprocessing_artifacts = fit_feature_preprocessor(X_train)
+        return self.fit_prepared(X_train_processed, y_train)
+
+    def predict_prepared(self, X_test_processed, n_estimators=None):
         if self.initial_prediction is None:
             raise ValueError("Model nie zostal wytrenowany. Najpierw uzyj fit().")
-        if self.preprocessing_artifacts is None:
-            raise ValueError
 
-        X_test_processed = transform_features(X_test, self.preprocessing_artifacts)
         prediction = np.full(X_test_processed.shape[0], self.initial_prediction)
 
-        for tree in self.trees:
+        estimators_to_use = self.trees if n_estimators is None else self.trees[:n_estimators]
+        for tree in estimators_to_use:
             prediction += self.learning_rate * tree.predict(X_test_processed)
 
         return prediction
+
+    def predict(self, X_test, n_estimators=None):
+        if self.preprocessing_artifacts is None:
+            raise ValueError("Brak zapisanego preprocessingu. Najpierw uzyj fit().")
+
+        X_test_processed = transform_features(X_test, self.preprocessing_artifacts)
+        return self.predict_prepared(X_test_processed, n_estimators=n_estimators)

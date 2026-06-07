@@ -5,8 +5,10 @@ from sklearn.tree import DecisionTreeRegressor
 
 try:
     from lab3.algorithms.boosting.boosting import MyGrandientBoosting
+    from lab3.utils.preprocessing import fit_feature_preprocessor, transform_features
 except ModuleNotFoundError:
     from algorithms.boosting.boosting import MyGrandientBoosting
+    from utils.preprocessing import fit_feature_preprocessor, transform_features
 
 
 class BoostingComparison:
@@ -25,25 +27,28 @@ class BoostingComparison:
         }
 
     def compare(self, X_train, X_test, y_train, y_test):
-        baseline_model = DecisionTreeRegressor(max_depth=self.max_depth, random_state=42)
-        baseline_model.fit(X_train, y_train)
+        X_train_prepared, preprocessing_artifacts = fit_feature_preprocessor(X_train)
+        X_test_prepared = transform_features(X_test, preprocessing_artifacts)
 
-        baseline_train_predictions = baseline_model.predict(X_train)
-        baseline_test_predictions = baseline_model.predict(X_test)
+        baseline_model = DecisionTreeRegressor(max_depth=self.max_depth, random_state=42)
+        baseline_model.fit(X_train_prepared, y_train)
+
+        baseline_train_predictions = baseline_model.predict(X_train_prepared)
+        baseline_test_predictions = baseline_model.predict(X_test_prepared)
         baseline_train_metrics = self._build_metrics(y_train, baseline_train_predictions)
         baseline_test_metrics = self._build_metrics(y_test, baseline_test_predictions)
 
+        boosting_model = MyGrandientBoosting(
+            n_estimators=max(self.n_estimators_values),
+            learning_rate=self.learning_rate,
+            max_depth=self.max_depth,
+        )
+        boosting_model.fit_prepared(X_train_prepared, y_train)
+
         boosting_rows = []
         for n_estimators in self.n_estimators_values:
-            model = MyGrandientBoosting(
-                n_estimators=n_estimators,
-                learning_rate=self.learning_rate,
-                max_depth=self.max_depth,
-            )
-            model.fit(X_train, y_train)
-
-            train_predictions = model.predict(X_train)
-            test_predictions = model.predict(X_test)
+            train_predictions = boosting_model.predict_prepared(X_train_prepared, n_estimators=n_estimators)
+            test_predictions = boosting_model.predict_prepared(X_test_prepared, n_estimators=n_estimators)
             train_metrics = self._build_metrics(y_train, train_predictions)
             test_metrics = self._build_metrics(y_test, test_predictions)
 
