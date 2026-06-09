@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestClassifier, RandomForestRegressor
+from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.preprocessing import StandardScaler
 
@@ -14,7 +15,7 @@ except ModuleNotFoundError:
 
 
 class MixtureOfExperts:
-    def __init__(self, n_clusters=2, random_state=42):
+    def __init__(self, n_clusters=3, random_state=42):
         self.n_clusters = n_clusters
         self.random_state = random_state
         self.kmeans = KMeans(n_clusters=n_clusters, random_state=random_state, n_init=10)
@@ -22,6 +23,7 @@ class MixtureOfExperts:
         self.global_model = RandomForestRegressor(n_estimators=100, random_state=random_state, n_jobs=-1)
         self.scaler = StandardScaler()
         self.experts = {}
+        self.expert_names = {}
         self.preprocessing_artifacts = None
         self.cluster_summary = None
 
@@ -43,8 +45,20 @@ class MixtureOfExperts:
 
         return pd.DataFrame(X_scaled, columns=X.columns, index=X.index)
 
-    def _build_expert(self):
-        return RandomForestRegressor(n_estimators=200, random_state=self.random_state, n_jobs=-1)
+    def _build_expert(self, cluster):
+        expert_builders = [
+            ("Ridge", lambda: Ridge(alpha=1.0)),
+            (
+                "RandomForestRegressor",
+                lambda: RandomForestRegressor(n_estimators=200, random_state=self.random_state, n_jobs=-1),
+            ),
+            (
+                "GradientBoostingRegressor",
+                lambda: GradientBoostingRegressor(n_estimators=200, learning_rate=0.05, random_state=self.random_state),
+            ),
+        ]
+        expert_name, builder = expert_builders[cluster % len(expert_builders)]
+        return expert_name, builder()
 
     @staticmethod
     def _metrics(y_true, y_pred):
@@ -76,6 +90,7 @@ class MixtureOfExperts:
             )
             .reset_index()
         )
+        summary["expert_model"] = summary["cluster"].map(self.expert_names)
 
         return summary
 
@@ -88,14 +103,16 @@ class MixtureOfExperts:
         self.gate.fit(X_train_scaled, cluster_labels)
 
         self.experts = {}
+        self.expert_names = {}
         for cluster in range(self.n_clusters):
             mask = cluster_labels == cluster
             X_cluster = X_train_prepared.loc[mask]
             y_cluster = y_train_values[mask]
 
-            expert = self._build_expert()
+            expert_name, expert = self._build_expert(cluster)
             expert.fit(X_cluster, y_cluster)
             self.experts[cluster] = expert
+            self.expert_names[cluster] = expert_name
 
         self.global_model.fit(X_train_prepared, y_train_values)
         self.cluster_summary = self._build_cluster_summary(X_train, y_train, cluster_labels)

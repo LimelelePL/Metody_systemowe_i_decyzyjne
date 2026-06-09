@@ -131,6 +131,11 @@ class StackingComparison:
         return experiment["metrics"].copy()
 
     @staticmethod
+    def build_level_0_and_stacking_df(experiment):
+        metrics_df = experiment["metrics"].copy()
+        return metrics_df[~metrics_df["Model"].str.startswith("MyGrandientBoosting")].reset_index(drop=True)
+
+    @staticmethod
     def build_level_0_diagnostics_df(experiment):
         return experiment["level_0_diagnostics"].copy()
 

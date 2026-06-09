@@ -9,7 +9,7 @@ except ModuleNotFoundError:
 
 
 class MixtureOfExpertsComparison:
-    def __init__(self, n_clusters=2, boosting_n_estimators=50, boosting_learning_rate=0.1, boosting_max_depth=3):
+    def __init__(self, n_clusters=3, boosting_n_estimators=50, boosting_learning_rate=0.1, boosting_max_depth=3):
         self.n_clusters = n_clusters
         self.boosting_n_estimators = boosting_n_estimators
         self.boosting_learning_rate = boosting_learning_rate
